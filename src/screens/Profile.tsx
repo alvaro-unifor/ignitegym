@@ -2,8 +2,8 @@ import { Center, Text } from "@gluestack-ui/themed";
 
 export function Profile() {
     return (
-        <Center>
-            <Text>Profile</Text>
+        <Center flex={1}>
+            <Text color="$white">Profile</Text>
         </Center>
     )
 }
