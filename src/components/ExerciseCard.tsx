@@ -1,9 +1,11 @@
 import { Heading, HStack, Image, Text, VStack, Icon } from "@gluestack-ui/themed";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { ChevronRight } from "lucide-react-native";
-type Props = TouchableOpacityProps
+type Props = TouchableOpacityProps & {
+    name: string
+}
 
-export function ExerciseCard({ ...rest }: Props) {
+export function ExerciseCard({name, ...rest }: Props) {
     return (
         <TouchableOpacity {...rest}>
             <HStack 
@@ -30,7 +32,7 @@ export function ExerciseCard({ ...rest }: Props) {
                         color ="$white" 
                         fontFamily="$heading"
                     >
-                        Puxada Frontal
+                        {name}
                     </Heading>
 
                     <Text

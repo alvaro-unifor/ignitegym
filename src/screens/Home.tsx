@@ -35,7 +35,7 @@ export function Home() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 32 }}
-                style={{ marginVertical: 40, maxHeight: 44, minHeight: 44 }}
+                style={{ marginVertical: 20, maxHeight: 44, minHeight: 44 }}
             />
 
             <VStack px="$8" flex={1}>
@@ -64,7 +64,7 @@ export function Home() {
                 <FlatList
                     data={exercises}
                     keyExtractor={(item) => item}
-                    renderItem={() => <ExerciseCard />}
+                    renderItem={({ item }) => <ExerciseCard name={item} />}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingBottom: 20 }}
                 />
