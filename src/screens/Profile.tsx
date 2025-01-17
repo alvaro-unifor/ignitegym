@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
-import { VStack, Text, Center, Heading } from "@gluestack-ui/themed";
-import { TouchableOpacity, ScrollView } from "react-native";
+import { VStack, Text, Center, Heading, useToast } from "@gluestack-ui/themed";
+import { TouchableOpacity, ScrollView, Alert } from "react-native";
 import { Input } from "@components/input";
 import { Button } from "@components/Button";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import { ToastMessage } from "@components/ToastMessage";
 
 export function Profile() {
     const [userPhoto, setUserPhoto] = useState("https:github.com/arthurbrit0.png");
+
+    const toast = useToast();
 
     async function handleUserPhotoSelect() {
         const photoSelected = await ImagePicker.launchImageLibraryAsync({
@@ -22,7 +26,27 @@ export function Profile() {
             return;
         }
 
-        setUserPhoto(photoSelected.assets[0].uri);
+        const photoURI = photoSelected.assets[0].uri
+
+        if(photoURI) {
+            const photoInfo = await FileSystem.getInfoAsync(photoURI) as { size: number }
+
+            if (photoInfo.size && (photoInfo.size / 1024 / 1024) > 5) {
+                return toast.show({
+                    placement: "top",
+                    render: ({ id }) => (
+                        <ToastMessage 
+                            id={id}
+                            title="Essa imagem é muito grande. Escolha uma de até 5MB" 
+                            action = "error" 
+                            onClose={() => toast.close(id)}
+                        />
+                    )
+                })
+            }
+
+            setUserPhoto(photoURI) 
+        }
 
     }
     
