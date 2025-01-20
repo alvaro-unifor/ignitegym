@@ -1,20 +1,66 @@
-import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed";
+import { VStack, Image, Center, Text, Heading, ScrollView, useToast } from "@gluestack-ui/themed";
 
 import BackGroundImg from "@assets/background.png";
 import Logo from "@assets/logo.svg";
+import { useState } from "react";
 
 import { Input } from "@components/input";
 import { Button } from "@components/Button";
 
+import { Controller, useForm } from "react-hook-form";
+
 import { useNavigation } from "@react-navigation/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes"; 
 
+import { useAuth } from "@hooks/useAuth";
+import { AppError } from "@utils/AppError";
+import { ToastMessage } from "@components/ToastMessage";
+import { Header } from "@components/Header";
+
+
+type FormData = {
+    email: string;
+    password: string;
+}
+
 export function Signin() {
+  const { signIn } = useAuth();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const toast = useToast();
+
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
 
   function handleNewAccount() {
     navigation.navigate("signUp");
   }
+
+  async function handleSignIn({email, password}: FormData) {
+    try{
+        setIsLoading(true);
+        await signIn(email, password);
+    } catch (error) {
+        const isAppError = error instanceof AppError;
+        const title = isAppError ? error.message : "Erro ao realizar login";
+        setIsLoading(false);
+
+        toast.show({
+            placement: "top",
+            render: ({ id }) => (
+                <ToastMessage 
+                    id={id}
+                    title= {title}
+                    action = "error" 
+                    onClose={() => toast.close(id)}
+                />
+            )
+        })
+    }
+  }
+
+  const { control, handleSubmit, formState: { errors } } = useForm<FormData>();
+
   return (
     <ScrollView
         contentContainerStyle={{flexGrow: 1}}
@@ -30,29 +76,48 @@ export function Signin() {
             />
             
             <VStack flex={1} px="$10" pb="$16">
-                <Center my="$24">
-                    <Logo />
-
-                    <Text color="$gray100" fontSize="$sm">
-                        Treine sua mente e o seu corpo
-                    </Text>
-                </Center>
+                
+                <Header />
 
                 <Center gap="$2">
-                    <Heading color="$gray100">Acesse a conta</Heading>
+                    <Heading color="$gray100">Acesse sua conta</Heading>
 
-                    <Input
-                        placeholder="E-mail"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
-
-                    <Input
-                        placeholder="Senha"
-                        secureTextEntry
+                    <Controller 
+                        control={control}
+                        name="email"
+                        rules={{ required: "Campo obrigatório" }}
+                        render={({ field: { onChange, value } }) => (
+                            <Input
+                                placeholder="E-mail"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                onChangeText={onChange}
+                                errorMessage={errors.email?.message}
+                                value={value}
+                            />
+                        )}
                     />
                     
-                    <Button title="Acessar"/>
+                    <Controller 
+                        control={control}
+                        name="password"
+                        rules={{ required: "Campo obrigatório" }}
+                        render={({ field: { onChange, value } }) => (
+                            <Input
+                                placeholder="Senha"
+                                secureTextEntry
+                                onChangeText={onChange}
+                                errorMessage={errors.password?.message}
+                                value={value}
+                            />
+                        )}
+                    />
+                    
+                    <Button 
+                        title="Acessar"
+                        onPress={handleSubmit(handleSignIn)}
+                        isLoading={isLoading}
+                    />
                 </Center>
 
                 <Center flex={1} justifyContent="flex-end" mt="$4">
