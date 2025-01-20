@@ -28,12 +28,18 @@ export function Signin() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const toast = useToast();
 
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
 
   function handleNewAccount() {
     navigation.navigate("signUp");
+  }
+
+  const toggleShowPassword = () => {
+    setShowPassword(prevState => !prevState);
   }
 
   async function handleSignIn({email, password}: FormData) {
@@ -98,17 +104,20 @@ export function Signin() {
                         )}
                     />
                     
-                    <Controller 
+                    <Controller
                         control={control}
                         name="password"
-                        rules={{ required: "Campo obrigatório" }}
                         render={({ field: { onChange, value } }) => (
-                            <Input
+                            <Input 
                                 placeholder="Senha"
-                                secureTextEntry
+                                secureTextEntry={!showPassword}
                                 onChangeText={onChange}
-                                errorMessage={errors.password?.message}
                                 value={value}
+                                isPasswordInput = {true}
+                                autoComplete="off"
+                                toggleShowPassword={toggleShowPassword}
+                                showPassword={showPassword}
+                                errorMessage={errors.password?.message}
                             />
                         )}
                     />
