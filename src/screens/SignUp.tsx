@@ -36,15 +36,26 @@ const signUpSchema = yup.object({
 export function SignUp() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const toast = useToast();
   
   const { control, handleSubmit, formState:{ errors } } = useForm<FormDataProps>({
     resolver: yupResolver(signUpSchema)
   });
 
+  const toggleShowPassword = () => {
+    setShowPassword(prevState => !prevState);
+  };
+
+  const toggleShowConfirmPassword = () => {
+    setShowConfirmPassword(prevState => !prevState);
+  };
+
   function handleGoBack() {
     navigation.goBack();
-  }
+  };
 
   async function handleSignUp({name, email, password}: FormDataProps) {
     try {
@@ -135,9 +146,13 @@ export function SignUp() {
                         render={({ field: { onChange, value } }) => (
                             <Input 
                                 placeholder="Senha"
-                                secureTextEntry
+                                secureTextEntry={!showPassword}
                                 onChangeText={onChange}
                                 value={value}
+                                isPasswordInput = {true}
+                                autoComplete="new-password"
+                                toggleShowPassword={toggleShowPassword}
+                                showPassword={showPassword}
                                 errorMessage={errors.password?.message}
                             />
                         )}
@@ -150,10 +165,14 @@ export function SignUp() {
                         render={({ field: { onChange, value } }) => (
                             <Input 
                                 placeholder="Confirmar senha"
-                                secureTextEntry
+                                secureTextEntry={!showConfirmPassword}
                                 onChangeText={onChange}
                                 value={value}
                                 onSubmitEditing={handleSubmit(handleSignUp)}
+                                isPasswordInput = {true}
+                                toggleShowPassword={toggleShowConfirmPassword}
+                                showPassword={showConfirmPassword}
+                                autoComplete="new-password"
                                 returnKeyType="send"
                                 errorMessage={errors.password_confirm?.message}
 
