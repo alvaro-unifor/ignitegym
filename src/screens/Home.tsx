@@ -10,8 +10,10 @@ import { api } from "@services/api";
 import { AppError } from "@utils/AppError";
 import { ToastMessage } from "@components/ToastMessage";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
+import { Loading } from "@components/Loading";
 
 export function Home() {
+    const [isLoading, setIsLoading] = useState(true)
     const [exercises, setExercises] = useState<ExerciseDTO[]>([])
     const [groups, setGroups] = useState<string[]>([])
     const [groupSelected, setGroupSelected] = useState<string>("costas")
@@ -20,8 +22,8 @@ export function Home() {
 
     const toast = useToast();
 
-    function handleOpenExerciseDetails(){
-        navigation.navigate("exercise")
+    function handleOpenExerciseDetails(exerciseId: string) {
+        navigation.navigate("exercise", { exerciseId })
     }
 
     async function fetchGroups() {
@@ -47,6 +49,7 @@ export function Home() {
 
     async function fetchExercisesByGroup() {
         try {
+            setIsLoading(true);
             const response = await api.get(`/exercises/bygroup/${groupSelected}`)
             setExercises(response.data)
         } catch (error) {
@@ -63,6 +66,8 @@ export function Home() {
                     />
                 )
             })
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -94,6 +99,9 @@ export function Home() {
                 style={{ marginVertical: 20, maxHeight: 44, minHeight: 44 }}
             />
 
+            {
+                isLoading ? <Loading /> :
+
             <VStack px="$8" flex={1}>
                 <HStack 
                     justifyContent="space-between" 
@@ -120,12 +128,12 @@ export function Home() {
                 <FlatList
                     data={exercises}
                     keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <ExerciseCard onPress={handleOpenExerciseDetails} data={item}/>}
+                    renderItem={({ item }) => <ExerciseCard onPress={() => handleOpenExerciseDetails(item.id)} data={item}/>}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingBottom: 20 }}
                 />
             </VStack>
-            
+            }
         </VStack>
     )
 }
