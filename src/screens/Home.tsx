@@ -15,8 +15,8 @@ import { Loading } from "@components/Loading";
 export function Home() {
     const [isLoading, setIsLoading] = useState(true)
     const [exercises, setExercises] = useState<ExerciseDTO[]>([])
-    const [groups, setGroups] = useState<string[]>([])
-    const [groupSelected, setGroupSelected] = useState<string>("costas")
+    const [groups, setGroups] = useState<string[]>([""])
+    const [groupSelected, setGroupSelected] = useState<string>(groups ? groups[0] : "")
 
     const navigation = useNavigation<AppNavigatorRoutesProps>()
 
@@ -30,6 +30,7 @@ export function Home() {
         try {
             const response = await api.get("/groups")
             setGroups(response.data)
+            setGroupSelected(response.data[0])
         } catch (error) {
             const isAppError = error instanceof AppError
             const title = isAppError ? error.message : "Não foi possivel carregar os grupos"
